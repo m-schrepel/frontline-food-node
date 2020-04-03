@@ -11,4 +11,4 @@ const port = 3000
 // routes entrypoint
 app.use(router)
 
-app.listen(port, () => console.log(`Server started on ${port}`))
+app.listen(port, () => console.log(`Server started on ${port}, ${process.env.SLACK_HOOK}`))

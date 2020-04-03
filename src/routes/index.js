@@ -3,6 +3,7 @@ const fetch = require('node-fetch')
 
 router.get('/', (req, res) => res.send('Yup. This is the server!').status(200))
 router.post('/sms', async (req, res) => {
+    console.log(process.env.SLACK_HOOK)
     await fetch(process.env.SLACK_HOOK, {
         method: 'post',
         body: JSON.stringify({
