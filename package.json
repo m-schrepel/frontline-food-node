@@ -1,0 +1,13 @@
+{
+  "name": "frontline-food-node",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "knex": "^0.20.13",
+    "pg": "^8.0.0"
+  }
+}
