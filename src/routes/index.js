@@ -25,11 +25,9 @@ router.post('/sms', async (req, res) => {
                     }
                 },
                 {
-                    type: 'section',
-                    text: {
-                        type: 'mrkdwn',
-                        text: `[With image](${req.body.MediaUrl0})`
-                    }
+                    type: 'image',
+                    image_url: `${req.body.MediaUrl0}`,
+                    alt_text: 'Image from SMS sender'
                 },
 
             ]
