@@ -7,6 +7,7 @@ const app = express()
 const port = 3000
 // routes entrypoint
 app.use(router)
-app.use(bodyParser.urlencoded())
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
 app.listen(port, () => console.log(`Server started on ${port}`))
