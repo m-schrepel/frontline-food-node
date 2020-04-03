@@ -2,8 +2,8 @@ const router = require('express').Router()
 const fetch = require('node-fetch')
 
 router.get('/', (req, res) => res.send('Yup. This is the server!').status(200))
-router.post('/sms', (req, res) => {
-    fetch(process.env.SLACK_HOOK, {
+router.post('/sms', async (req, res) => {
+    await fetch(process.env.SLACK_HOOK, {
         method: 'post',
         body: JSON.stringify({
             blocks: [
@@ -35,7 +35,7 @@ router.post('/sms', (req, res) => {
             ]
         })
     })
-    res.sendStatus(200)
+    return res.sendStatus(200)
 })
 
 module.exports = router
