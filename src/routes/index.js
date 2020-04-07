@@ -2,9 +2,16 @@ const router = require('express').Router()
 const fetch = require('node-fetch')
 
 router.get('/', (req, res) => res.send('Yup. This is the server!').status(200))
-router.all('/oauth2callback', (req, res) => {
-    console.log(req)
-    res.sendStatus(200)
+router.get('/oauth2callback', (req, res) => {
+    const code = req.query.code;
+    client.getToken(code, (err, tokens) => {
+        if (err) {
+            console.error('Error getting oAuth tokens:');
+            throw err;
+        }
+        client.credentials = tokens;
+        res.send('Authentication successful! Please return to the console.');
+    });
 })
 router.post('/sms', async (req, res) => {
     console.log(process.env.SLACK_HOOK)
