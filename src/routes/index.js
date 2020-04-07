@@ -2,6 +2,10 @@ const router = require('express').Router()
 const fetch = require('node-fetch')
 
 router.get('/', (req, res) => res.send('Yup. This is the server!').status(200))
+router.all('/oauth2callback', (req, res) => {
+    console.log(req)
+    res.sendStatus(200)
+})
 router.post('/sms', async (req, res) => {
     console.log(process.env.SLACK_HOOK)
     await fetch(process.env.SLACK_HOOK, {
