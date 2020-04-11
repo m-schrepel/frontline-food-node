@@ -1,7 +1,7 @@
 const fs = require('fs')
 const { google } = require('googleapis')
 // This holds the map between incoming number, slack hook and drive folder
-const chapterMap = require('../../chapter-map')
+const chapterMap = require('../chapter-map')
 // This is a one time generated oauth response with a long-lived oauth token
 const token = JSON.parse(fs.readFileSync('token.json'))
 // These are the program credentials for the google application
