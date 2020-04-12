@@ -18,7 +18,7 @@ const drive = google.drive({
 const fetch = require('node-fetch')
 
 const smsController = async (req, res) => {
-    console.log('Incoming SMS from ', req.body.From, chapterMap[req.body.From])
+    console.log('Incoming SMS from ', req.body.To, chapterMap[req.body.To])
     // We wrap this whole controller in a try catch because we might
     // get a request which is not from Twilio and all the destructuring 
     // below will fail, so we'll just let that case fail in the catch block
@@ -41,7 +41,7 @@ const smsController = async (req, res) => {
 
 async function sendFilesToGDrive(body) {
     const numFiles = body.NumMedia
-    const { chapter, driveFolder } = chapterMap[body.From]
+    const { chapter, driveFolder } = chapterMap[body.To]
 
     for (let i = 0; i < numFiles; i++) {
         const url = 'MediaUrl' + i;
@@ -62,9 +62,9 @@ async function sendFilesToGDrive(body) {
 }
 
 async function sendFilestoSlack(body) {
-    const { slackChannel } = chapterMap[body.From]
+    const { slackChannel } = chapterMap[body.To]
     let numFiles = Number(body.NumMedia)
-    const imageBlocks = Array.from(new Array(numFiles)).map((el, idx) => {
+    const imageBlocks = Array.To(new Array(numFiles)).map((el, idx) => {
         const imgUrl = 'MediaUrl' + idx
         return {
             type: 'image',
