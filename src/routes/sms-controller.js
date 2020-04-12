@@ -64,7 +64,7 @@ async function sendFilesToGDrive(body) {
 async function sendFilestoSlack(body) {
     const { slackChannel } = chapterMap[body.To]
     let numFiles = Number(body.NumMedia)
-    const imageBlocks = Array.To(new Array(numFiles)).map((el, idx) => {
+    const imageBlocks = Array.from(new Array(numFiles)).map((el, idx) => {
         const imgUrl = 'MediaUrl' + idx
         return {
             type: 'image',
