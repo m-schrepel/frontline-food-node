@@ -18,6 +18,7 @@ const drive = google.drive({
 const fetch = require('node-fetch')
 
 const smsController = async (req, res) => {
+    console.log('Incoming SMS from ', req.body.From, chapterMap[req.body.From])
     // We wrap this whole controller in a try catch because we might
     // get a request which is not from Twilio and all the destructuring 
     // below will fail, so we'll just let that case fail in the catch block
