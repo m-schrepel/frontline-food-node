@@ -17,16 +17,61 @@ const drive = google.drive({
 });
 const fetch = require('node-fetch')
 
-
 const smsController = async (req, res) => {
-    console.log(req.body)
-    return res.sendStatus(200)
+    // We wrap this whole controller in a try catch because we might
+    // get a request which is not from Twilio and all the destructuring 
+    // below will fail, so we'll just let that case fail in the catch block
+    try {
+        // Map this incoming number to endpoints
+        // How many photos are in this MMS?
+        const numMedia = Number(req.body.NumMedia)
+        // Just return if there aren't photos
+        if (numMedia < 1) {
+            return res.sendStatus(200)
+        }
+
+        await Promise.all(sendFilesToGDrive(req.body), sendFilestoSlack(req.body))
+
+        res.sendStatus(200)
+    } catch (e) {
+        return res.send(e).status(500)
+    }
 }
 
-module.exports = smsController
+async function sendFilesToGDrive(body) {
+    const numFiles = body.NumMedia
+    const { chapter, driveFolder } = chapterMap[body.From]
 
-/**
- * await fetch(process.env.SLACK_HOOK, {
+    for (let i = 0; i < numFiles; i++) {
+        const url = 'MediaUrl' + i;
+        const contentType = 'MediaContentType' + i;
+        let img = await fetch(body[url])
+        await drive.files.create({
+            resource: {
+                name: `${chapter} - ${Date.now()}`,
+                parents: [driveFolder]
+            },
+            media: {
+                mimeType: body[contentType],
+                body: img.body
+            }
+        })
+    }
+
+}
+
+async function sendFilestoSlack(body) {
+    const { slackChannel } = chapterMap[body.From]
+    let numFiles = Number(body.NumMedia)
+    const imageBlocks = Array.from(new Array(numFiles)).map((el, idx) => {
+        const imgUrl = 'MediaUrl' + idx
+        return {
+            type: 'image',
+            image_url: body[imgUrl],
+            alt_text: 'Image from SMS sender'
+        }
+    })
+    await fetch(slackChannel, {
         method: 'post',
         body: JSON.stringify({
             blocks: [
@@ -44,16 +89,13 @@ module.exports = smsController
                     type: 'section',
                     text: {
                         type: 'mrkdwn',
-                        text: `*Message says*: ${req.body.Body}`
+                        text: `*Message says*: ${body.Body}`
                     }
                 },
-                {
-                    type: 'image',
-                    image_url: `${req.body.MediaUrl0}`,
-                    alt_text: 'Image from SMS sender'
-                },
-
+                ...imageBlocks
             ]
         })
     })
- */
+}
+
+module.exports = smsController
