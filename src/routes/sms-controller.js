@@ -1,7 +1,7 @@
 const fs = require('fs')
 const { google } = require('googleapis')
 // This holds the map between incoming number, slack hook and drive folder
-const chapterMap = require('../../chapter-map')
+const chapterMap = JSON.parse(fs.readFileSync('chapter-map.json'))
 // This is a one time generated oauth response with a long-lived oauth token
 const token = JSON.parse(fs.readFileSync('token.json'))
 // These are the program credentials for the google application
@@ -14,11 +14,24 @@ oauth2Client.setCredentials(token)
 const drive = google.drive({
     version: 'v3',
     auth: oauth2Client
-});
+})
+// This gets config from airtable. If we don't have it, we default to a file on disk
+const fetchConfig = require('../helpers/fetch-config')
 const fetch = require('node-fetch')
 
 const smsController = async (req, res) => {
-    console.log('Incoming SMS from ', req.body.To, chapterMap[req.body.To])
+    // This will be the chapter map file, either fetched from air-table or from disk if that fails
+    let config
+    // if we can't fetch this
+    try {
+        config = await fetchConfig()
+        console.log('Config fetched from airtable')
+    } catch (e) {
+        // use the one on disk
+        config = chapterMap
+        console.log('Defaulting to config from disk')
+    }
+    console.log('Incoming SMS from ', req.body.To, config[req.body.To])
     // We wrap this whole controller in a try catch because we might
     // get a request which is not from Twilio and all the destructuring 
     // below will fail, so we'll just let that case fail in the catch block
@@ -31,7 +44,7 @@ const smsController = async (req, res) => {
             return res.sendStatus(200)
         }
 
-        await Promise.all(sendFilesToGDrive(req.body), sendFilestoSlack(req.body))
+        await Promise.all(sendFilesToGDrive(req.body, config), sendFilestoSlack(req.body, config))
 
         res.sendStatus(200)
     } catch (e) {
@@ -39,9 +52,9 @@ const smsController = async (req, res) => {
     }
 }
 
-async function sendFilesToGDrive(body) {
+async function sendFilesToGDrive(body, config) {
     const numFiles = body.NumMedia
-    const { chapter, driveFolder } = chapterMap[body.To]
+    const { chapter, driveFolder } = config[body.To]
 
     for (let i = 0; i < numFiles; i++) {
         const url = 'MediaUrl' + i;
@@ -61,8 +74,8 @@ async function sendFilesToGDrive(body) {
 
 }
 
-async function sendFilestoSlack(body) {
-    const { slackChannel } = chapterMap[body.To]
+async function sendFilestoSlack(body, config) {
+    const { slackChannel } = config[body.To]
     let numFiles = Number(body.NumMedia)
     const imageBlocks = Array.from(new Array(numFiles)).map((el, idx) => {
         const imgUrl = 'MediaUrl' + idx
