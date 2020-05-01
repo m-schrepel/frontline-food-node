@@ -18,6 +18,8 @@ const drive = google.drive({
 // This gets config from airtable. If we don't have it, we default to a file on disk
 const fetchConfig = require('../helpers/fetch-config')
 const fetch = require('node-fetch')
+const MessagingResponse = require('twilio').twiml.MessagingResponse;
+
 
 const smsController = async (req, res) => {
     // This will be the chapter map file, either fetched from air-table or from disk if that fails
@@ -46,7 +48,12 @@ const smsController = async (req, res) => {
 
         await Promise.all(sendFilesToGDrive(req.body, config), sendFilestoSlack(req.body, config))
 
-        res.sendStatus(200)
+        const twiml = new MessagingResponse();
+
+        twiml.message('Thank you!');
+
+        res.writeHead(200, { 'Content-Type': 'text/xml' });
+        res.end(twiml.toString());
     } catch (e) {
         return res.send(e).status(500)
     }
