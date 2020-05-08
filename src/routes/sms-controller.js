@@ -1,4 +1,5 @@
 const fs = require('fs')
+const moment = require('moment')
 const { google } = require('googleapis')
 // This holds the map between incoming number, slack hook and drive folder
 const chapterMap = JSON.parse(fs.readFileSync('chapter-map.json'))
@@ -44,7 +45,7 @@ const smsController = async (req, res) => {
             return res.sendStatus(200)
         }
 
-        await Promise.all(sendFilesToGDrive(req.body, config), sendFilestoSlack(req.body, config))
+        await Promise.all([sendFilesToGDrive(req.body, config), sendFilestoSlack(req.body, config)])
 
         res.set('Content-Type', 'text/richtext')
         res.send('Thanks!').status(200)
@@ -63,7 +64,7 @@ async function sendFilesToGDrive(body, config) {
         let img = await fetch(body[url])
         await drive.files.create({
             resource: {
-                name: `${chapter} - ${Date.now()}`,
+                name: `${moment().format('YYYY-MM-DD')}--${body.To}--${Date.now().toString().slice(-4)}`,
                 parents: [driveFolder]
             },
             media: {
