@@ -64,7 +64,7 @@ async function sendFilesToGDrive(body, config) {
         let img = await fetch(body[url])
         await drive.files.create({
             resource: {
-                name: `${moment().format('YYYY-MM-DD')}--${body.To}--${Date.now().toString().slice(-4)}`,
+                name: `${moment().format('YYYY-MM-DD')}--${body.To.slice(2)}--${Date.now().toString().slice(-4)}`,
                 parents: [driveFolder]
             },
             media: {
