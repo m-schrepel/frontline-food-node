@@ -72,7 +72,7 @@ async function sendFilesToGDrive(body, config) {
         console.log(img)
         await drive.files.create({
             resource: {
-                name: `${date}__${hash}__${hourAndMinute}__${Date.now().toString().slice(-2)}__${chapterName}`,
+                name: `${date}_${hash}_${hourAndMinute}_${Date.now().toString().slice(-2)}_${chapterName}`,
                 parents: [driveFolder]
             },
             media: {
