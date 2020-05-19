@@ -59,9 +59,9 @@ const smsController = async (req, res) => {
 async function sendFilesToGDrive(body, config) {
     const numFiles = body.NumMedia
     const { chapter, driveFolder } = config[body.To]
-    const hmac = crypto.createHmac('sha256', Date.now().toString())
+    const hmac = crypto.createHmac('sha256', body.To)
     hmac.update(body.From)
-    const hash = hmac.digest('base64').replace(/[0-9+=]/gi, '').toUpperCase().slice(0, 8)
+    const hash = hmac.digest('base64').replace(/[^A-Za-z]/gi, '').toUpperCase().slice(0, 8)
     const chapterName = chapter.replace(/[\s\(\)]/ig, '').slice(0, 4).toUpperCase()
     const date = moment().format('YYYY-MM-DD')
     const hourAndMinute = `${moment().format('hh')}${moment().format('mm')}`
