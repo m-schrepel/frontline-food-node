@@ -61,16 +61,18 @@ async function sendFilesToGDrive(body, config) {
     const hmac = crypto.createHmac('sha256', Date.now().toString())
     hmac.update(body.From)
     const hash = hmac.digest('base64').replace(/[0-9+=]/gi, '').toUpperCase().slice(0, 8)
-    const moment = moment()
     const chapterName = chapter.replace(/[\s\(\)]/ig, '').slice(0, 4).toUpperCase()
+    const date = moment().format('YYYY-MM-DD')
+    const hourAndMinute = `${moment().format('hh')}${moment().format('mm')}`
 
     for (let i = 0; i < numFiles; i++) {
         const url = 'MediaUrl' + i;
         const contentType = 'MediaContentType' + i;
         let img = await fetch(body[url])
+        console.log(img)
         await drive.files.create({
             resource: {
-                name: `${moment.format('YYYY-MM-DD')}__${hash}__${moment.format('hh')}${moment.format('mm')}__${chapterName}`,
+                name: `${date}__${hash}__${hourAndMinute}__${Date.now().toString().slice(-2)}__${chapterName}`,
                 parents: [driveFolder]
             },
             media: {
