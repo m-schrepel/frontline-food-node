@@ -48,9 +48,9 @@ const smsController = async (req, res) => {
 
         await Promise.all([sendFilesToGDrive(req.body, config), sendFilestoSlack(req.body, config)])
 
-        res.set('Content-Type', 'text/richtext')
         res.send('Thanks!').status(200)
     } catch (e) {
+        console.log('Error with SMS', e)
         return res.send(e).status(500)
     }
 }
@@ -70,7 +70,7 @@ async function sendFilesToGDrive(body, config) {
         let img = await fetch(body[url])
         await drive.files.create({
             resource: {
-                name: `${moment.format('YYYY-MM-DD')}__${hash}__${moment.format('hh')}${moment.format('mm')}__${chapterName}`,
+                name: `${moment.format('YYYY-MM-DD')}__${hash}__${moment.format('hh')}${moment.format('mm')}__${}__${chapterName}`,
                 parents: [driveFolder]
             },
             media: {
