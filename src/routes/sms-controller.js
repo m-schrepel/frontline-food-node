@@ -1,5 +1,6 @@
 const fs = require('fs')
 const moment = require('moment')
+const mime = require('mime-types')
 const { google } = require('googleapis')
 // This holds the map between incoming number, slack hook and drive folder
 const chapterMap = JSON.parse(fs.readFileSync('chapter-map.json'))
@@ -69,10 +70,9 @@ async function sendFilesToGDrive(body, config) {
         const url = 'MediaUrl' + i;
         const contentType = 'MediaContentType' + i;
         let img = await fetch(body[url])
-        console.log(img)
         await drive.files.create({
             resource: {
-                name: `${date}_${hash}_${hourAndMinute}_${Date.now().toString().slice(-2)}_${chapterName}`,
+                name: `${date}_${hash}_${hourAndMinute}_${Date.now().toString().slice(-2)}_${chapterName}.${mime.extension(body[contentType])}`,
                 parents: [driveFolder]
             },
             media: {
