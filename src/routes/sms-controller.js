@@ -16,6 +16,7 @@ const drive = google.drive({
     version: 'v3',
     auth: oauth2Client
 })
+const crypto = require('crypto')
 // This gets config from airtable. If we don't have it, we default to a file on disk
 const fetchConfig = require('../helpers/fetch-config')
 const fetch = require('node-fetch')
@@ -57,6 +58,11 @@ const smsController = async (req, res) => {
 async function sendFilesToGDrive(body, config) {
     const numFiles = body.NumMedia
     const { chapter, driveFolder } = config[body.To]
+    const hmac = crypto.createHmac('sha256', Date.now().toString())
+    hmac.update(body.From)
+    const hash = hmac.digest('base64').replace(/[0-9+=]/gi, '').toUpperCase().slice(0, 8)
+    const moment = moment()
+    const chapterName = chapter.replace(/[\s\(\)]/ig, '').slice(0, 4).toUpperCase()
 
     for (let i = 0; i < numFiles; i++) {
         const url = 'MediaUrl' + i;
@@ -64,7 +70,7 @@ async function sendFilesToGDrive(body, config) {
         let img = await fetch(body[url])
         await drive.files.create({
             resource: {
-                name: `${moment().format('YYYY-MM-DD')}--${body.To.slice(2)}--${Date.now().toString().slice(-4)}`,
+                name: `${moment.format('YYYY-MM-DD')}__${hash}__${moment.format('hh')}${moment.format('mm')}__${chapterName}`,
                 parents: [driveFolder]
             },
             media: {
